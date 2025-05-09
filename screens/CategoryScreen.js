@@ -27,17 +27,24 @@ const CategoryScreen = ({ navigation }) => {
         <Text style={styles.headerText}>Categories</Text>
       </View>
       {isLoading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#63a1f2" />
+        </View>
       ) : (
         <FlatList
           data={categories}
           keyExtractor={(item) => item}
+          contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.categoryItem}
-              onPress={() => navigation.navigate('ProductListScreen', { category: item })}
+              onPress={() =>
+                navigation.navigate('ProductListScreen', { category: item })
+              }
             >
-              <Text style={styles.categoryText}>{item}</Text>
+              <Text style={styles.categoryText}>
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </Text>
             </TouchableOpacity>
           )}
         />
@@ -49,28 +56,40 @@ const CategoryScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   header: {
-    backgroundColor: '#cccccc',
-    width: '100%',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    backgroundColor: '#63a1f2',
+    paddingVertical: 30,
+    alignItems: 'center',
     marginBottom: 10,
   },
   headerText: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
-    marginTop: 20,
+    color: '#fff',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listContent: {
+    padding: 10,
   },
   categoryItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#cccccc',
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    padding: 16,
+    marginBottom: 10,
   },
   categoryText: {
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    textTransform: 'capitalize',
   },
 });
 

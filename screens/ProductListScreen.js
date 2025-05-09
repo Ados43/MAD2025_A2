@@ -1,32 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { Ionicons } from '@expo/vector-icons';
 import { addToCart } from '../redux/cartSlice';
 
-const ProductDetailScreen = ({ route, navigation }) => {
-  const { product } = route.params;
+const ProductListScreen = ({ route, navigation }) => {
+  const { category } = route.params;
+  const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    fetchProductDetails();
+    fetch(`https://fakestoreapi.com/products/category/${category}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching products:', error);
+        setIsLoading(false);
+      });
   }, []);
-
-  const fetchProductDetails = () => {
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  };
-
-  const handleAddToCart = () => {
-    dispatch(addToCart(product));
-  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Product Details</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={18} color="#fff" style={styles.backIcon} />
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerText}>
+          {category.charAt(0).toUpperCase() + category.slice(1)}
+        </Text>
+        <View style={{width: 90 }} />
       </View>
+
+
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#0000ff" />
@@ -34,21 +44,19 @@ const ProductDetailScreen = ({ route, navigation }) => {
         </View>
       ) : (
         <ScrollView style={styles.scrollView}>
-          {/* <Image style={styles.image} source={{ uri: product.Image }}/> */}
-          <View style={styles.detailsContainer}>
-            <Text style={styles.title}>{product.title}</Text>
-            <Text style={styles.price}>Price: ${product.price}</Text>
-            <Text style={styles.description}>{product.description}</Text>
-            <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
-              <Text style={styles.addToCartButtonText}>Add to Shopping Cart</Text>
+          {products.map((product) => (
+            <TouchableOpacity
+              key={product.id}
+              style={styles.productItem}
+              onPress={() => navigation.navigate('ProductDetailScreen', { product })}
+            >
+              <Image style={styles.thumbnail} source={{ uri: product.image }} />
+              <View style={styles.infoContainer}>
+                <Text numberOfLines={2} style={styles.title}>{product.title}</Text>
+                <Text style={styles.price}>Price: ${product.price}</Text>
+              </View>
             </TouchableOpacity>
-          </View>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.buttonText}>Back to Product List</Text>
-          </TouchableOpacity>
+          ))}
         </ScrollView>
       )}
     </View>
@@ -58,19 +66,26 @@ const ProductDetailScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   header: {
-    backgroundColor: '#cccccc',
+    backgroundColor: '#63a1f2',
     width: '100%',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 30,
+    paddingHorizontal: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 10,
+    borderColor: '#ddd',
   },
   headerText: {
-    fontSize:   20,
+    color: '#fff',
+    fontSize: 25,
     fontWeight: 'bold',
-    marginTop: 20,
+    alignSelf: 'center',
+    flex: 1,
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -79,54 +94,74 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    width: '100%',
+    paddingHorizontal: 10,
+    marginTop: 10,
   },
-  image: {
-    alignSelf: 'center',
-    width: 200, 
-    height: 200,     
+  productItem: {
+    flexDirection: 'row',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    padding: 10,
     marginBottom: 10,
+    backgroundColor: '#f9f9f9',
+    alignItems: 'center',
   },
-  detailsContainer: {
-    width: '100%', 
-    alignItems: 'center', 
+  thumbnail: {
+    width: 60,
+    height: 60,
+    resizeMode: 'contain',
+    marginRight: 10,
+  },
+  infoContainer: {
+    flex: 1,
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 14,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   price: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 14,
+    color: '#333',
   },
-  description: {
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#fff',
+    borderWidth: 1,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  backText: {
+    color: '#fff',
     fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center', 
+    marginLeft: 6,
   },
+  backIcon: {
+    marginRight: 2,
+  },
+  addToCartButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    alignItems: 'center',
+  },  
   addToCartButton: {
-    backgroundColor: '#00cc00',
+    backgroundColor: '#63a1f2',
     padding: 10,
     borderRadius: 5,
-    marginBottom: 10,
-    alignSelf: 'center',
+    alignItems: 'center',
+    marginTop: 10,
   },
   addToCartButtonText: {
-    fontSize: 18,
-    color: '#ffffff',
-  },
-  button: {
-    backgroundColor: '#cccccc',
-    padding: 10,
-    borderRadius: 5,
-    alignSelf: 'center',
-  },
-  buttonText: {
-    fontSize: 18,
-    color: '#000000',
-  },
+    color: '#fff',
+    fontSize: 16,
+  },  
 });
 
-export default ProductDetailScreen;
-
+export default ProductListScreen;

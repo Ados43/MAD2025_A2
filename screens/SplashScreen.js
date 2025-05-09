@@ -9,7 +9,7 @@ const SplashScreen = ({ navigation }) => {
     // Simulate loading for 3 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
-      navigation.replace('Main'); // Navigate to the Main stack which contains the Tab Navigator
+      navigation.replace('Main');
     }, 3000);
 
     return () => clearTimeout(timer);

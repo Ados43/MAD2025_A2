@@ -5,14 +5,26 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Provider, useSelector } from 'react-redux';
 import { store } from './redux/store';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import SplashScreen from './screens/SplashScreen';
 import CategoryScreen from './screens/CategoryScreen';
 import ProductListScreen from './screens/ProductListScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 import ShoppingCartScreen from './screens/ShoppingCartScreen';
 
-const Stack = createStackNavigator();
+const RootStack = createStackNavigator();
+const HomeStack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const HomeStackScreen = () => {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="CategoryScreen" component={CategoryScreen} />
+      <HomeStack.Screen name="ProductListScreen" component={ProductListScreen} />
+      <HomeStack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
+    </HomeStack.Navigator>
+  );
+};
 
 const HomeTabs = () => {
   const cartItems = useSelector((state) => state.cart.items);
@@ -24,16 +36,17 @@ const HomeTabs = () => {
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === 'Home') {
-            iconName = 'ios-home';
+            iconName = 'home-outline';
           } else if (route.name === 'Shopping Cart') {
-            iconName = 'ios-cart';
+            iconName = 'cart-outline';
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarBadge: route.name === 'Shopping Cart' && totalItems > 0 ? totalItems : undefined,
+        headerShown: false,
       })}
     >
-      <Tab.Screen name="Home" component={CategoryScreen} />
+      <Tab.Screen name="Home" component={HomeStackScreen} />
       <Tab.Screen name="Shopping Cart" component={ShoppingCartScreen} />
     </Tab.Navigator>
   );
@@ -43,12 +56,10 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="SplashScreen" screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="SplashScreen" component={SplashScreen} />
-          <Stack.Screen name="Main" component={HomeTabs} />
-          <Stack.Screen name="ProductListScreen" component={ProductListScreen} />
-          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} />
-        </Stack.Navigator>
+        <RootStack.Navigator initialRouteName="SplashScreen" screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="SplashScreen" component={SplashScreen} />
+          <RootStack.Screen name="Main" component={HomeTabs} />
+        </RootStack.Navigator>
       </NavigationContainer>
     </Provider>
   );
