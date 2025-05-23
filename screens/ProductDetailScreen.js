@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from 'rea
 import { useDispatch } from 'react-redux';
 import { addToCart } from '../redux/cartSlice';
 import { Ionicons } from '@expo/vector-icons';
+import BottomTabs from '../BottomTabs';
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { product } = route.params;
@@ -35,6 +36,7 @@ const ProductDetailScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <BottomTabs />
     </View>
   );
 };
@@ -126,6 +128,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 5,
+    textAlign: 'center',
   },
   description: {
     fontSize: 16,

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, Scr
 import { useDispatch } from 'react-redux';
 import { Ionicons } from '@expo/vector-icons';
 import { addToCart } from '../redux/cartSlice';
+import BottomTabs from '../BottomTabs';
 
 const ProductListScreen = ({ route, navigation }) => {
   const { category } = route.params;
@@ -59,6 +60,7 @@ const ProductListScreen = ({ route, navigation }) => {
           ))}
         </ScrollView>
       )}
+      <BottomTabs />
     </View>
   );
 };

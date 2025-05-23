@@ -12,11 +12,22 @@ import { useSelector, useDispatch } from 'react-redux';
 import {
   increaseQuantity,
   decreaseQuantity,
-  removeFromCart,
+  clearCart,
 } from '../redux/cartSlice';
+import { addOrder } from '../redux/ordersSlice';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import BottomTabs from '../BottomTabs';
 
 const ShoppingCartScreen = () => {
+  const navigation = useNavigation();
+  const isLoggedIn = useSelector((state) => state.auth.loggedIn);
+  if (!isLoggedIn) {
+    alert('Access Denied: Please sign in to view your cart!');
+    navigation.navigate('SignIn');
+    return null;
+  }
+
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
@@ -39,25 +50,51 @@ const ShoppingCartScreen = () => {
             onPress={() => dispatch(decreaseQuantity(item.id))}
             style={[styles.controlButton, { backgroundColor: '#ff4d4d' }]}
           >
-            <Ionicons name="remove" size={20} color="#fff" />
+            <Ionicons name="remove-circle-outline" size={20} color="#fff" />
           </TouchableOpacity>
           <Text style={styles.quantityText}>{item.quantity}</Text>
           <TouchableOpacity
             onPress={() => dispatch(increaseQuantity(item.id))}
             style={[styles.controlButton, { backgroundColor: '#4CAF50' }]}
           >
-            <Ionicons name="add" size={20} color="#fff" />
+            <Ionicons name="add-circle-outline" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert('Your cart is empty!');
+      return;
+    }
+
+    const order = {
+      id: Date.now(),
+      status: 'New',
+      items: cartItems,
+    };
+
+    dispatch(addOrder(order));
+    dispatch(clearCart());
+    alert('Order placed successfully!');
+    navigation.navigate('OrderScreen');
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Shopping Cart</Text>
-      </View>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>My Shopping Cart</Text>
+            <TouchableOpacity
+              style={styles.profileButton}
+              onPress={() => navigation.navigate('Profile')}
+              accessibilityLabel="Profile"
+              activeOpacity={1}
+            >
+              <Ionicons name="person-circle-outline" size={50} color="#fff" />
+            </TouchableOpacity>
+          </View>
 
       {cartItems.length === 0 ? (
         <View style={styles.emptyContainer}>
@@ -83,12 +120,13 @@ const ShoppingCartScreen = () => {
             contentContainerStyle={styles.listContent}
           />
 
-          <TouchableOpacity style={styles.checkoutButton}>
+          <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
             <Ionicons name="cart-outline" size={20} color="#fff" />
             <Text style={styles.checkoutButtonText}>Checkout</Text>
           </TouchableOpacity>
         </>
       )}
+      <BottomTabs />
     </SafeAreaView>
   );
 };
@@ -99,17 +137,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   header: {
-    backgroundColor: '#63a1f2',
-    paddingVertical: 30,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderColor: '#ddd',
-    marginBottom: 10,
+  flexDirection: 'row',
+  backgroundColor: '#63a1f2',
+  paddingVertical: 30,
+  paddingHorizontal: 15,
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 10,
+  position: 'relative',
+},
+
+headerText: {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  textAlign: 'center',
+  fontSize: 25,
+  fontWeight: 'bold',
+  color: '#ffffff',
+},
+  profileButton: {
+    padding: 5,
   },
-  headerText: {
-    color: '#fff',
-    fontSize: 25,
-    fontWeight: 'bold',
+  profileIcon: {
+    fontSize: 28,
+    color: '#ffffff',
   },
   emptyContainer: {
     flex: 1,
@@ -120,6 +172,8 @@ const styles = StyleSheet.create({
     fontSize: 38,
     fontWeight: 'bold',
     color: '#555',
+    textAlign: 'center',
+    marginTop: -100,
   },
   summaryContainer: {
     flexDirection: 'row',
@@ -187,8 +241,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   checkoutButton: {
-    position: 'absolute',
-    bottom: 20,
+    marginRight: 15,
+    marginBottom: 75,
     alignSelf: 'center',
     flexDirection: 'row',
     backgroundColor: '#63a1f2',
@@ -196,6 +250,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 20,
     alignItems: 'center',
+    zIndex: 10,
   },
   checkoutButtonText: {
     color: '#fff',

@@ -1,26 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { View, Image, StyleSheet, ActivityIndicator } from 'react-native';
-import splashImage from '../smart_shop.png'; // Import the image
+import { useEffect, useState } from 'react';
+import { View, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { useSelector } from 'react-redux';
+import splashImage from '../splashScreen.png'; 
 
 const SplashScreen = ({ navigation }) => {
+  const loggedIn = useSelector((state) => state.auth.loggedIn);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading for 3 seconds
+    document.title = 'Fake Store App';
     const timer = setTimeout(() => {
       setIsLoading(false);
-      navigation.replace('Main');
+      if (navigation && navigation.reset) {
+        navigation.reset({
+        index: 0,
+        routes: [{ name: 'SignIn' }],
+      });
+      }
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [navigation]);
+  }, [navigation, loggedIn]);
 
   return (
     <View style={styles.container}>
-      <Image source={splashImage} style={styles.splashImage} />
-      {isLoading && (
-        <ActivityIndicator size="large" color="#0000ff" />
-      )}
+      <Image source={splashImage} style={styles.splashImg} />
+      {isLoading && <ActivityIndicator size="large" color="#0000ff" />}
     </View>
   );
 };
@@ -31,9 +36,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  splashImage: {
-    width: '100%',
-    height: '100%',
+  splashImg: {
+    width: '90%',
+    height: '90%',
     position: 'absolute',
     zIndex: -1,
     resizeMode: 'contain',
